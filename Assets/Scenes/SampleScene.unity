@@ -510,6 +510,7 @@ GameObject:
   - component: {fileID: 828713962}
   - component: {fileID: 828713961}
   - component: {fileID: 828713960}
+  - component: {fileID: 828713963}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -530,9 +531,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _moveSpeed: 2
-  _walkSpeed: 3
-  _runSpeed: 6
-  jumpHeight: 3
+  _walkSpeed: 1
+  _runSpeed: 3
+  jumpHeight: 1.5
   groundCheck: {fileID: 966680224}
   isGrounded: 0
   groundDistance: 0.6
@@ -578,6 +579,34 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 4
   m_CollisionDetection: 0
+--- !u!114 &828713963
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 828713959}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1dc2a86ab5aa7b4eba7729940ff1439, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isTransformed: 0
+  _powerUp: {fileID: 1403774638}
+  _tMoveSpeed: 3
+  _tWalkSpeed: 3
+  _tRunSpeed: 5
+  _tJumpHeight: 3
+  groundCheck: {fileID: 966680224}
+  isGrounded: 0
+  groundDistance: 0.4
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 256
+  gravity: -9.81
+  _energy: 0
+  currentEnergy: 0
+  maxEnergy: 100
 --- !u!4 &828713964
 Transform:
   m_ObjectHideFlags: 0
