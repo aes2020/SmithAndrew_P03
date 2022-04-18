@@ -108,7 +108,7 @@ public class Movement : MonoBehaviour
     private void Jump()
     {
         velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
-        _anim.SetTrigger("Jump");
+        
     }
 
     private IEnumerator Attack()
