@@ -20,17 +20,26 @@ public class Movement : MonoBehaviour
     public float gravity = -9.81f;
 
     private CharacterController _controller;
+    private Animator _anim;
 
     // Start is called before the first frame update
     void Start()
     {
         _controller = GetComponent<CharacterController>();
+        _anim = GetComponentInChildren<Animator>();
     }
 
     // Update is called once per frame
     private void Update()
     {
         Move();
+
+        if(Input.GetKeyDown(KeyCode.P))
+        {
+           StartCoroutine(Attack());
+        }
+
+        
     }
 
     private void Move()
@@ -44,8 +53,9 @@ public class Movement : MonoBehaviour
 
 
         float z = Input.GetAxis("Vertical");
+        float x = Input.GetAxis("Horizontal");
 
-        moveDirection = new Vector3(0, 0, z);
+        moveDirection = new Vector3(x, 0, z);
 
         if(isGrounded)
         {
@@ -80,21 +90,33 @@ public class Movement : MonoBehaviour
 
     private void Idle()
     {
-
+        _anim.SetFloat("Speed", 0, 0.1f, Time.deltaTime);
     }
 
     private void Walk()
     {
         _moveSpeed = _walkSpeed;
+        _anim.SetFloat("Speed", 0.5f, 0.1f, Time.deltaTime);
     }
 
     private void Run()
     {
         _moveSpeed = _runSpeed;
+        _anim.SetFloat("Speed", 1, 0.1f, Time.deltaTime);
     }
 
     private void Jump()
     {
         velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+        _anim.SetTrigger("Jump");
+    }
+
+    private IEnumerator Attack()
+    {
+        _anim.SetLayerWeight(_anim.GetLayerIndex("AttackLayer"), 1);
+        _anim.SetTrigger("Attack");
+
+        yield return new WaitForSeconds(0.9f);
+        _anim.SetLayerWeight(_anim.GetLayerIndex("AttackLayer"), 0);
     }
 }
