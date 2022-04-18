@@ -22,11 +22,18 @@ public class Movement : MonoBehaviour
     private CharacterController _controller;
     private Animator _anim;
 
+    public PowerUp _powerUp;
+    public int _energy = 0;
+    public int currentEnergy;
+    public int maxEnergy = 100;
+
     // Start is called before the first frame update
     void Start()
     {
         _controller = GetComponent<CharacterController>();
         _anim = GetComponentInChildren<Animator>();
+        _powerUp.SetMaxEnergy(maxEnergy);
+        currentEnergy = _energy;
     }
 
     // Update is called once per frame
@@ -39,6 +46,12 @@ public class Movement : MonoBehaviour
            StartCoroutine(Attack());
         }
 
+        if (Input.GetButton("Submit"))
+        {
+            _powerUp.GainEnergy(0.5f);
+            _powerUp.SetEnergy(currentEnergy);
+        }
+        
         
     }
 
@@ -119,4 +132,13 @@ public class Movement : MonoBehaviour
         yield return new WaitForSeconds(0.9f);
         _anim.SetLayerWeight(_anim.GetLayerIndex("AttackLayer"), 0);
     }
+
+    public void GainEnergy(int gain)
+    {
+        currentEnergy += gain;
+
+        _powerUp.SetEnergy(currentEnergy);
+    }
+
+    
 }
