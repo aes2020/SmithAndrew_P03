@@ -32,8 +32,8 @@ public class Movement : MonoBehaviour
     {
         _controller = GetComponent<CharacterController>();
         _anim = GetComponentInChildren<Animator>();
-        _powerUp.SetMaxEnergy(maxEnergy);
         currentEnergy = _energy;
+        //_powerUp.SetMaxEnergy(maxEnergy);
     }
 
     // Update is called once per frame
@@ -48,8 +48,9 @@ public class Movement : MonoBehaviour
 
         if (Input.GetButton("Submit"))
         {
-            _powerUp.GainEnergy(0.5f);
+            GainEnergy(1);
             _powerUp.SetEnergy(currentEnergy);
+            //_powerUp.SetMaxEnergy(100);
         }
         
         
