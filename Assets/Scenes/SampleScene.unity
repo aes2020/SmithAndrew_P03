@@ -541,6 +541,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   gravity: -9.81
+  _transformState: {fileID: 828713963}
+  notTransformed: 0
   _powerUp: {fileID: 1403774638}
   _energy: 0
   currentEnergy: 0
@@ -985,7 +987,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 0}
   m_Direction: 0
   m_MinValue: 0
-  m_MaxValue: 100
+  m_MaxValue: 200
   m_WholeNumbers: 1
   m_Value: 0
   m_OnValueChanged:

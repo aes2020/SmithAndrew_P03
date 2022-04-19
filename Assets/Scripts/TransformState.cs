@@ -31,7 +31,7 @@ public class TransformState : MonoBehaviour
     //public PowerUp _powerUp;
     public int _energy = 0;
     public int currentEnergy;
-    public int maxEnergy = 100;
+    public int maxEnergy = 200;
 
     // Start is called before the first frame update
     void Start()
@@ -46,7 +46,7 @@ public class TransformState : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(currentEnergy >= 100)
+        if(_powerUp.slider.value >= 200)
         {
             //_powerUp.SetEnergy(currentEnergy);
             isTransformed = true;
@@ -55,7 +55,7 @@ public class TransformState : MonoBehaviour
         }
     }
 
-    private void Move()
+    public void Move()
     {
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
 
@@ -72,6 +72,8 @@ public class TransformState : MonoBehaviour
 
         if (isGrounded)
         {
+            Debug.Log("Transform state is grounded");
+
             if (moveDirection != Vector3.zero && !Input.GetKey(KeyCode.LeftShift))
             {
                 NewWalk();
@@ -121,7 +123,6 @@ public class TransformState : MonoBehaviour
     private void SuperJump()
     {
         velocity.y = Mathf.Sqrt(_tJumpHeight * -2f * gravity);
-
     }
     /*
     private IEnumerator SuperAttack()

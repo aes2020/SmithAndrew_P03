@@ -8,6 +8,12 @@ public class Character : MonoBehaviour
     [SerializeField] private float _walkSpeed;
     [SerializeField] private float _runSpeed;
 
+    [SerializeField] private float _tMoveSpeed;
+    [SerializeField] private float _tWalkSpeed;
+    [SerializeField] private float _tRunSpeed;
+
+    public float _tJumpHeight = 4f;
+
     public float jumpHeight = 3f;
 
     private Vector3 moveDirection;
@@ -22,10 +28,18 @@ public class Character : MonoBehaviour
     private CharacterController _controller;
     private Animator _anim;
 
+    public TransformState _transformState;
+
+    public bool notTransformed;
+
     public PowerUp _powerUp;
     public int _energy = 0;
     public int currentEnergy;
-    public int maxEnergy = 100;
+    public int maxEnergy = 200;
+
+    public bool isTransformed;
+
+    private int _transformTime;
 
     // Start is called before the first frame update
     void Start()
@@ -33,6 +47,8 @@ public class Character : MonoBehaviour
         _controller = GetComponent<CharacterController>();
         _anim = GetComponentInChildren<Animator>();
         currentEnergy = _energy;
+        isTransformed = false;
+        notTransformed = true;
         //_powerUp.SetMaxEnergy(maxEnergy);
     }
 
@@ -46,13 +62,22 @@ public class Character : MonoBehaviour
            StartCoroutine(Attack());
         }
 
-        if (Input.GetButton("Submit"))
+        if (Input.GetButton("Submit") && isGrounded)
         {
             GainEnergy(1);
             _powerUp.SetEnergy(currentEnergy);
+
+            Charge();
             //_powerUp.SetMaxEnergy(100);
         }
         
+        if(_powerUp.slider.value >= maxEnergy)
+        {
+            notTransformed = false;
+            _transformState.isTransformed = true;
+            _transformState.Move();
+            //Move().enabled(false);
+        }
         
     }
 
@@ -116,13 +141,15 @@ public class Character : MonoBehaviour
     private void Run()
     {
         _moveSpeed = _runSpeed;
-        _anim.SetFloat("Speed", 1, 0.1f, Time.deltaTime);
+        //_anim.SetBool("Run", 1, 0.1f, Time.deltaTime);
+        _anim.SetBool("Run",true);
     }
 
     private void Jump()
     {
         velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
-        
+        _anim.SetFloat("Height", 0.5f, 0.1f, Time.deltaTime);
+
     }
 
     private IEnumerator Attack()
@@ -132,6 +159,15 @@ public class Character : MonoBehaviour
 
         yield return new WaitForSeconds(0.9f);
         _anim.SetLayerWeight(_anim.GetLayerIndex("AttackLayer"), 0);
+    }
+
+    private IEnumerator Charge()
+    {
+        //_anim.SetLayerWeight(_anim.GetLayerIndex("AttackLayer"), 1);
+        _anim.SetTrigger("Charge");
+
+        yield return new WaitForSeconds(0.9f);
+        //_anim.SetLayerWeight(_anim.GetLayerIndex("AttackLayer"), 0);
     }
 
     public void GainEnergy(int gain)

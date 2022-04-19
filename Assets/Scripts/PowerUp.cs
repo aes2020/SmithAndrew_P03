@@ -7,7 +7,7 @@ public class PowerUp : MonoBehaviour
 {
     public Slider slider;
 
-    public float _energy = 100f;
+    public float _energy = 200f;
 
     public Gradient gradient;
     public Image fill;
@@ -25,6 +25,12 @@ public class PowerUp : MonoBehaviour
     {  
             _energy += power;
             fill.fillAmount = _energy / 100f;
+        /*
+        if(_energy >= 100)
+        {
+            _energy = 100f;
+        }
+        */
             Debug.Log("Rising Energy");
     }
 
