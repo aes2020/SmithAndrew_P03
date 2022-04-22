@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Character : MonoBehaviour
 {
@@ -32,12 +33,15 @@ public class Character : MonoBehaviour
 
     public bool notTransformed;
 
-    [SerializeField] private float timerSpeed = 2f;
+    //[SerializeField] private float timerSpeed = 2f;
 
     private float elapsed;
 
+    public Image fill;
+    public Gradient gradient;
+
     public PowerUp _powerUp;
-    public int _energy = 0;
+    public float _energy = 0;
     public int currentEnergy;
     public int maxEnergy = 200;
 
@@ -50,7 +54,7 @@ public class Character : MonoBehaviour
     {
         _controller = GetComponent<CharacterController>();
         _anim = GetComponentInChildren<Animator>();
-        currentEnergy = _energy;
+        //currentEnergy = _energy;
         isTransformed = false;
         notTransformed = true;
         //_powerUp.SetMaxEnergy(maxEnergy);
@@ -88,9 +92,22 @@ public class Character : MonoBehaviour
             //_powerUp.SetEnergy(currentEnergy);
             notTransformed = false;
             isTransformed = true;
-            EnergyDecrease();
+
+            _powerUp.EnergyDecrease(10);
+
+           // EnergyDecrease(10);
+            _powerUp.SetEnergy(currentEnergy);
+            //LoseEnergy(1);
             NewMove();
             Debug.Log("Is Transformed");
+        }
+        else if(_powerUp.slider.value < 200 && Input.GetButton("Submit") && isGrounded)
+        {
+            isTransformed = false;
+            notTransformed = true;
+            GainEnergy(1);
+            Charge();
+            _powerUp.SetEnergy(currentEnergy);
         }
 
     }
@@ -260,8 +277,8 @@ public class Character : MonoBehaviour
     {
         velocity.y = Mathf.Sqrt(_tJumpHeight * -2f * gravity);
     }
-
-    private void EnergyDecrease()
+    /*
+    private void EnergyDecrease(float power)
     {
         if (_powerUp.slider.value >= 200 && isTransformed)
         {
@@ -269,12 +286,41 @@ public class Character : MonoBehaviour
             if (elapsed >= timerSpeed)
             {
                 elapsed = 0f;
-                _powerUp.slider.value--;
+                //_powerUp.slider.value--;
+                _powerUp.slider.value = _energy;
 
+                _energy -= power;
+                fill.fillAmount = _energy / 100f;
+
+                //_powerUp.SetEnergy(currentEnergy);
 
                 Debug.Log("Energy is dropping");
             }
         }
     }
+    */
+    
+    public void LoseEnergy(int loss)
+    {
+        currentEnergy -= loss;
 
+        _powerUp.SetEnergy(currentEnergy);
+    }
+    
+    /*
+    public void SetMinEnergy(int energy)
+    {
+        slider.maxValue = energy;
+        slider.value = energy;
+
+        fill.color = gradient.Evaluate(1f);
+    }
+
+    public void SetEnergy(int energy)
+    {
+        slider.value = energy;
+
+        fill.color = gradient.Evaluate(slider.normalizedValue);
+    }
+    */
 }

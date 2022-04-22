@@ -12,6 +12,13 @@ public class PowerUp : MonoBehaviour
     public Gradient gradient;
     public Image fill;
 
+    public Character _character;
+
+    public int currentEnergy;
+
+    [SerializeField] private float timerSpeed = 5f;
+
+    private float elapsed;
 
     public void SetMaxEnergy(int energy)
     {
@@ -39,5 +46,22 @@ public class PowerUp : MonoBehaviour
         slider.value = energy;
 
         fill.color = gradient.Evaluate(slider.normalizedValue);
+    }
+
+    public void EnergyDecrease(float power)
+    {
+        if (slider.value >= 200 && _character.isTransformed)
+        {
+            elapsed += Time.deltaTime;
+            if (elapsed >= timerSpeed)
+            {
+                elapsed = 0f;
+                //slider.value--;               
+                _energy -= power;
+                fill.fillAmount = _energy /100f;
+
+                Debug.Log("Energy is dropping");
+            }
+        }
     }
 }
