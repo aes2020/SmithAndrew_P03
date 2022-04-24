@@ -13,6 +13,13 @@ public class Character : MonoBehaviour
     [SerializeField] private float _tWalkSpeed;
     [SerializeField] private float _tRunSpeed;
 
+    [SerializeField] ParticleSystem _chargeParticle = null;
+    [SerializeField] AudioSource _chargeAudio = null;
+    [SerializeField] AudioClip _chargeSFX = null;
+
+    [SerializeField] AudioSource _transformAudio = null;
+    [SerializeField] AudioClip _SuperSFX = null;
+
     public float _tJumpHeight = 4f;
 
     public float jumpHeight = 3f;
@@ -28,6 +35,12 @@ public class Character : MonoBehaviour
 
     private CharacterController _controller;
     private Animator _anim;
+
+    public bool isJumping;
+    public bool isRunning;
+    public bool isCharging;
+    public bool isAttacking;
+    private bool isShooting;
 
     public TransformState _transformState;
 
@@ -67,14 +80,26 @@ public class Character : MonoBehaviour
 
         if(Input.GetKeyDown(KeyCode.P))
         {
-           StartCoroutine(Attack());
+            //StartCoroutine(Attack());
+            Kick();
+            _anim.SetBool("isAttacking", true);
+            Debug.Log("Attack");
         }
 
-        if (Input.GetButton("Submit") && isGrounded)
+        if (Input.GetKeyDown(KeyCode.O) && isTransformed)
         {
+            Projectile();
+            _anim.SetBool("isShooting", true);
+            Debug.Log("Projectile Shot");
+        }
+
+            if (Input.GetButton("Fire1") && isGrounded)
+        {
+            PlayChargeSound();
+            ChargeParticle();
             GainEnergy(1);
             _powerUp.SetEnergy(currentEnergy);
-
+            _anim.SetBool("isCharging", true);
             Charge();
             //_powerUp.SetMaxEnergy(100);
         }
@@ -94,6 +119,8 @@ public class Character : MonoBehaviour
             isTransformed = true;
 
             _powerUp.EnergyDecrease(10);
+
+            PlayTransformSound();
 
            // EnergyDecrease(10);
             _powerUp.SetEnergy(currentEnergy);
@@ -132,14 +159,18 @@ public class Character : MonoBehaviour
             if (moveDirection != Vector3.zero && !Input.GetKey(KeyCode.LeftShift))
             {
                 Walk();
+                _anim.SetBool("isRunning", false);
             }
             else if (moveDirection != Vector3.zero && Input.GetKey(KeyCode.LeftShift))
             {
                 Run();
+                _anim.SetBool("isRunning", true);
             }
             else if (moveDirection == Vector3.zero)
             {
                 Idle();
+                _anim.SetBool("isRunning", false);
+                _anim.SetBool("isJumping", false);
             }
 
             moveDirection *= _moveSpeed;
@@ -148,6 +179,7 @@ public class Character : MonoBehaviour
             {
                 Jump();
                 Debug.Log("Jumped");
+                _anim.SetBool("isJumping", true);
             }
         }
                
@@ -172,17 +204,29 @@ public class Character : MonoBehaviour
     private void Run()
     {
         _moveSpeed = _runSpeed;
-        //_anim.SetBool("Run", 1, 0.1f, Time.deltaTime);
-        _anim.SetBool("Run",true);
+        //_anim.SetFloat("Run", 1, 0.1f, Time.deltaTime);
+        //_anim.SetBool("Run",true);
     }
 
     private void Jump()
     {
         velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
-        _anim.SetFloat("Height", 0.5f, 0.1f, Time.deltaTime);
+        //_anim.SetFloat("Height", 0.5f, 0.1f, Time.deltaTime);
 
     }
 
+    private void Kick()
+    {
+        _anim.SetBool("isAttacking", true);
+    }
+
+    private void Projectile()
+    {
+        _anim.SetBool("isShooting", true);
+    }
+
+
+    /*
     private IEnumerator Attack()
     {
         _anim.SetLayerWeight(_anim.GetLayerIndex("AttackLayer"), 1);
@@ -191,11 +235,12 @@ public class Character : MonoBehaviour
         yield return new WaitForSeconds(0.9f);
         _anim.SetLayerWeight(_anim.GetLayerIndex("AttackLayer"), 0);
     }
-
+    */
     private IEnumerator Charge()
     {
         //_anim.SetLayerWeight(_anim.GetLayerIndex("AttackLayer"), 1);
-        _anim.SetTrigger("Charge");
+        //_anim.SetTrigger("Charge");
+        _anim.SetBool("isCharging",true);
 
         yield return new WaitForSeconds(0.9f);
         //_anim.SetLayerWeight(_anim.GetLayerIndex("AttackLayer"), 0);
@@ -259,23 +304,27 @@ public class Character : MonoBehaviour
     private void SuperIdle()
     {
         _anim.SetFloat("Speed", 0, 0.1f, Time.deltaTime);
+        _anim.SetBool("isRunning", false);
+        _anim.SetBool("isJumping", false);
     }
 
     private void NewWalk()
     {
         _tMoveSpeed = _tWalkSpeed;
         _anim.SetFloat("Speed", 0.5f, 0.1f, Time.deltaTime);
+        _anim.SetBool("isRunning", false);
     }
 
     private void SuperRun()
     {
         _tMoveSpeed = _tRunSpeed;
-        _anim.SetBool("Run",true);
+        _anim.SetBool("isRunnning",true);
     }
 
     private void SuperJump()
     {
         velocity.y = Mathf.Sqrt(_tJumpHeight * -2f * gravity);
+        _anim.SetBool("isJumping", true);
     }
     /*
     private void EnergyDecrease(float power)
@@ -306,7 +355,7 @@ public class Character : MonoBehaviour
 
         _powerUp.SetEnergy(currentEnergy);
     }
-    
+
     /*
     public void SetMinEnergy(int energy)
     {
@@ -323,4 +372,22 @@ public class Character : MonoBehaviour
         fill.color = gradient.Evaluate(slider.normalizedValue);
     }
     */
+
+    void ChargeParticle()
+    {
+        _chargeParticle.Play();
+    }
+
+    void PlayChargeSound()
+    {
+        _chargeAudio.clip = _chargeSFX;
+        _chargeAudio?.Play();
+    }
+
+    void PlayTransformSound()
+    {
+        _transformAudio.clip = _SuperSFX;
+        _transformAudio?.Play();
+    }
+
 }
