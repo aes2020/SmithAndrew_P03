@@ -28,6 +28,15 @@ public class TransformState : MonoBehaviour
     private CharacterController _controller;
     private Animator _anim;
 
+    [SerializeField] GameObject artToDisable = null;
+    [SerializeField] GameObject artToEnable = null;
+
+    public bool isJumping;
+    public bool isRunning;
+    public bool isCharging;
+    public bool isAttacking;
+    private bool isShooting;
+
     //public PowerUp _powerUp;
     public int _energy = 0;
     public int currentEnergy;
@@ -50,12 +59,19 @@ public class TransformState : MonoBehaviour
         {
             //_powerUp.SetEnergy(currentEnergy);
             isTransformed = true;
-            Move();
+            NewMove();
             Debug.Log("Is Transformed");
         }
+        if(_powerUp.slider.value <= 0)
+        {
+            artToDisable.SetActive(false);
+            artToEnable.SetActive(true);
+            _powerUp.EnergyReset(currentEnergy);
+        }
+
     }
 
-    public void Move()
+    public void NewMove()
     {
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
 
@@ -106,24 +122,29 @@ public class TransformState : MonoBehaviour
     private void SuperIdle()
     {
         _anim.SetFloat("Speed", 0, 0.1f, Time.deltaTime);
+        _anim.SetBool("isRunning", false);
+        _anim.SetBool("isJumping", false);
     }
 
     private void NewWalk()
     {
         _tMoveSpeed = _tWalkSpeed;
         _anim.SetFloat("Speed", 0.5f, 0.1f, Time.deltaTime);
+        _anim.SetBool("isRunning", false);
     }
 
     private void SuperRun()
     {
         _tMoveSpeed = _tRunSpeed;
-        _anim.SetFloat("Speed", 1, 0.1f, Time.deltaTime);
+        _anim.SetBool("isRunnning", true);
     }
 
     private void SuperJump()
     {
         velocity.y = Mathf.Sqrt(_tJumpHeight * -2f * gravity);
+        _anim.SetBool("isJumping", true);
     }
+
     /*
     private IEnumerator SuperAttack()
     {

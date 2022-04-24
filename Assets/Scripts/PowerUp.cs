@@ -48,7 +48,7 @@ public class PowerUp : MonoBehaviour
         fill.color = gradient.Evaluate(slider.normalizedValue);
     }
 
-    public void EnergyDecrease(float power)
+    public void EnergyReset(float power)
     {
         if (slider.value >= 200 && _character.isTransformed)
         {
@@ -56,11 +56,14 @@ public class PowerUp : MonoBehaviour
             if (elapsed >= timerSpeed)
             {
                 elapsed = 0f;
-                //slider.value--;               
-                _energy -= power;
+                //slider.value.SetEnergy(currentEnergy);              
+
+                slider.value = _energy;
+                _energy += power;
+
                 fill.fillAmount = _energy /100f;
 
-                Debug.Log("Energy is dropping");
+                Debug.Log("Energy is reset");
             }
         }
     }

@@ -20,6 +20,9 @@ public class Character : MonoBehaviour
     [SerializeField] AudioSource _transformAudio = null;
     [SerializeField] AudioClip _SuperSFX = null;
 
+    [SerializeField] GameObject artToDisable = null;
+    [SerializeField] GameObject artToEnable = null;
+
     public float _tJumpHeight = 4f;
 
     public float jumpHeight = 3f;
@@ -103,6 +106,10 @@ public class Character : MonoBehaviour
             Charge();
             //_powerUp.SetMaxEnergy(100);
         }
+            else if(!Input.GetButton("Fire1") && isGrounded)
+        {
+            Idle();
+        }
         /*
         if(_powerUp.slider.value >= maxEnergy)
         {
@@ -118,11 +125,15 @@ public class Character : MonoBehaviour
             notTransformed = false;
             isTransformed = true;
 
-            _powerUp.EnergyDecrease(10);
+            _powerUp.EnergyReset(currentEnergy);
 
             PlayTransformSound();
 
-           // EnergyDecrease(10);
+            artToDisable.SetActive(false);
+            artToEnable.SetActive(true);
+
+            // EnergyDecrease(10);
+            //_powerUp.slider.value(currentEnergy);
             _powerUp.SetEnergy(currentEnergy);
             //LoseEnergy(1);
             NewMove();
@@ -135,6 +146,7 @@ public class Character : MonoBehaviour
             GainEnergy(1);
             Charge();
             _powerUp.SetEnergy(currentEnergy);
+            //artToDisable.SetActive(true);
         }
 
     }
@@ -318,7 +330,7 @@ public class Character : MonoBehaviour
     private void SuperRun()
     {
         _tMoveSpeed = _tRunSpeed;
-        _anim.SetBool("isRunnning",true);
+        _anim.SetBool("isRunning",true);
     }
 
     private void SuperJump()
