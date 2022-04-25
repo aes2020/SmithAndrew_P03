@@ -25,7 +25,7 @@ public class TransformTimer : MonoBehaviour
         Character character
            = this.gameObject.GetComponent<Character>();
 
-        EnergyDecrease();
+        ResetEnergy();
 
         /*
         if(_powerUp.slider.value >= 200)
@@ -40,18 +40,24 @@ public class TransformTimer : MonoBehaviour
         */
     }
 
-    private void EnergyDecrease()
+    private void ResetEnergy()
     {
         if (_powerUp.slider.value >= 200 && _character.isTransformed)
         {
             elapsed += Time.deltaTime;
             if (elapsed >= timerSpeed)
             {
+                Debug.Log("Reset");
                 elapsed = 0f;
-                _powerUp.slider.value--;
+                _powerUp.slider.value = 0;
 
+                _character.isTransformed = false;
+                _character.notTransformed = true;
 
-                Debug.Log("Energy is dropping");
+                _character.artToDisable.SetActive(false);
+                _character.artToEnable.SetActive(true);
+
+                Debug.Log("Energy is reset");
             }
         }
     }

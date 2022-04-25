@@ -56,12 +56,20 @@ public class PowerUp : MonoBehaviour
             if (elapsed >= timerSpeed)
             {
                 elapsed = 0f;
-                //slider.value.SetEnergy(currentEnergy);              
+                SetEnergy(currentEnergy);
+                _character.isTransformed = false;
+                _character.notTransformed = true;
+
+
+                _character.artToDisable.SetActive(false);
+                _character.artToEnable.SetActive(true);
 
                 slider.value = _energy;
                 _energy += power;
 
                 fill.fillAmount = _energy /100f;
+
+                //fill.color = gradient.Evaluate(slider.normalizedValue);
 
                 Debug.Log("Energy is reset");
             }

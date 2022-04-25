@@ -9,9 +9,13 @@ public class Character : MonoBehaviour
     [SerializeField] private float _walkSpeed;
     [SerializeField] private float _runSpeed;
 
+    
     [SerializeField] private float _tMoveSpeed;
     [SerializeField] private float _tWalkSpeed;
     [SerializeField] private float _tRunSpeed;
+    
+    [SerializeField] private float _flySpeed;
+
 
     [SerializeField] ParticleSystem _chargeParticle = null;
     [SerializeField] AudioSource _chargeAudio = null;
@@ -20,8 +24,8 @@ public class Character : MonoBehaviour
     [SerializeField] AudioSource _transformAudio = null;
     [SerializeField] AudioClip _SuperSFX = null;
 
-    [SerializeField] GameObject artToDisable = null;
-    [SerializeField] GameObject artToEnable = null;
+    public GameObject artToDisable = null;
+    public GameObject artToEnable = null;
 
     public float _tJumpHeight = 4f;
 
@@ -44,6 +48,7 @@ public class Character : MonoBehaviour
     public bool isCharging;
     public bool isAttacking;
     private bool isShooting;
+    public bool isFlying;
 
     public TransformState _transformState;
 
@@ -108,7 +113,7 @@ public class Character : MonoBehaviour
         }
             else if(!Input.GetButton("Fire1") && isGrounded)
         {
-            Idle();
+            //NotCharging();
         }
         /*
         if(_powerUp.slider.value >= maxEnergy)
@@ -119,13 +124,16 @@ public class Character : MonoBehaviour
             //Move().enabled(false);
         }
         */
-        if (_powerUp.slider.value >= 200)
+        if (_powerUp.slider.value >= 200 & notTransformed)
         {
+            NewMove();
             //_powerUp.SetEnergy(currentEnergy);
             notTransformed = false;
             isTransformed = true;
 
-            _powerUp.EnergyReset(currentEnergy);
+            _anim.SetBool("isTransformed", true);
+
+            //_powerUp.EnergyReset(currentEnergy);
 
             PlayTransformSound();
 
@@ -136,17 +144,31 @@ public class Character : MonoBehaviour
             //_powerUp.slider.value(currentEnergy);
             _powerUp.SetEnergy(currentEnergy);
             //LoseEnergy(1);
-            NewMove();
             Debug.Log("Is Transformed");
         }
-        else if(_powerUp.slider.value < 200 && Input.GetButton("Submit") && isGrounded)
+        if(_powerUp.slider.value <= 100)
         {
+            notTransformed = true;
+            isTransformed = false;
+
+            artToDisable.SetActive(true);
+            artToEnable.SetActive(false);
+
+            Move();
+            /*
+            Move();
             isTransformed = false;
             notTransformed = true;
+
+
+            artToDisable.SetActive(true);
+            artToEnable.SetActive(false);
+
             GainEnergy(1);
             Charge();
             _powerUp.SetEnergy(currentEnergy);
             //artToDisable.SetActive(true);
+            */
         }
 
     }
@@ -237,6 +259,84 @@ public class Character : MonoBehaviour
         _anim.SetBool("isShooting", true);
     }
 
+    public void NewMove()
+    {
+
+        isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
+
+        _anim.SetFloat("SuperSpeed", 0.5f, 0.1f, Time.deltaTime);
+        _anim.SetBool("isTransformed", true);
+
+        if (isGrounded && velocity.y < 0)
+        {
+            velocity.y = -2f;
+        }
+
+
+        float z = Input.GetAxis("Vertical");
+        float x = Input.GetAxis("Horizontal");
+
+        moveDirection = new Vector3(x, 0, z);
+
+        if (isGrounded)
+        {
+            Debug.Log("Transform state is grounded");
+            //isFlying = true;
+            //_anim.SetBool("isFlying", true);
+            //_anim.SetFloat("Fly", 0.5f, 0.1f, Time.deltaTime);
+            //_anim.SetBool("isTransformed", true);
+
+
+            if (moveDirection != Vector3.zero && !Input.GetKey(KeyCode.LeftShift))
+            {
+                NewWalk();
+            }
+            else if (moveDirection != Vector3.zero && Input.GetKey(KeyCode.LeftShift))
+            {
+                Fly();
+            }
+            else if (moveDirection == Vector3.zero)
+            {
+                SuperIdle();
+            }
+            
+            moveDirection *= _tMoveSpeed;
+            /*
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                SuperJump();
+                Debug.Log("Super Jump");
+            }
+            */
+
+        }
+
+        _controller.Move(moveDirection * Time.deltaTime);
+
+        velocity.y += gravity * Time.deltaTime;
+        _controller.Move(velocity * Time.deltaTime);
+    }
+
+    private void SuperIdle()
+    {
+        _anim.SetFloat("SuperSpeed", 0, 0.1f, Time.deltaTime);
+        _anim.SetBool("isFlying", false);
+        //_anim.SetBool("isJumping", false);
+    }
+
+    private void NewWalk()
+    {
+        _tMoveSpeed = _tWalkSpeed;
+        _anim.SetFloat("SuperSpeed", 0.5f, 0.1f, Time.deltaTime);
+        _anim.SetBool("isFlying", false);
+    }
+
+    private void Fly()
+    {
+        _moveSpeed = _flySpeed;
+        _anim.SetFloat("SuperSpeed", 0.5f, 0.1f, Time.deltaTime);
+        _anim.SetBool("isFlying", true);
+    }
 
     /*
     private IEnumerator Attack()
@@ -265,79 +365,20 @@ public class Character : MonoBehaviour
         _powerUp.SetEnergy(currentEnergy);
     }
 
-    public void NewMove()
-    {
-        isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
 
-        if (isGrounded && velocity.y < 0)
-        {
-            velocity.y = -2f;
-        }
-
-
-        float z = Input.GetAxis("Vertical");
-        float x = Input.GetAxis("Horizontal");
-
-        moveDirection = new Vector3(x, 0, z);
-
-        if (isGrounded)
-        {
-            Debug.Log("Transform state is grounded");
-
-            if (moveDirection != Vector3.zero && !Input.GetKey(KeyCode.LeftShift))
-            {
-                NewWalk();
-            }
-            else if (moveDirection != Vector3.zero && Input.GetKey(KeyCode.LeftShift))
-            {
-                SuperRun();
-            }
-            else if (moveDirection == Vector3.zero)
-            {
-                SuperIdle();
-            }
-
-            moveDirection *= _tMoveSpeed;
-
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                SuperJump();
-                Debug.Log("Super Jump");
-            }
-        }
-
-
-        _controller.Move(moveDirection * Time.deltaTime);
-
-        velocity.y += gravity * Time.deltaTime;
-        _controller.Move(velocity * Time.deltaTime);
-    }
-
-    private void SuperIdle()
-    {
-        _anim.SetFloat("Speed", 0, 0.1f, Time.deltaTime);
-        _anim.SetBool("isRunning", false);
-        _anim.SetBool("isJumping", false);
-    }
-
-    private void NewWalk()
-    {
-        _tMoveSpeed = _tWalkSpeed;
-        _anim.SetFloat("Speed", 0.5f, 0.1f, Time.deltaTime);
-        _anim.SetBool("isRunning", false);
-    }
-
+    /*
     private void SuperRun()
     {
         _tMoveSpeed = _tRunSpeed;
         _anim.SetBool("isRunning",true);
     }
-
+   
     private void SuperJump()
     {
         velocity.y = Mathf.Sqrt(_tJumpHeight * -2f * gravity);
         _anim.SetBool("isJumping", true);
     }
+    */
     /*
     private void EnergyDecrease(float power)
     {
@@ -388,6 +429,11 @@ public class Character : MonoBehaviour
     void ChargeParticle()
     {
         _chargeParticle.Play();
+    }
+
+    void NotCharging()
+    {
+        _chargeParticle.Stop();
     }
 
     void PlayChargeSound()
