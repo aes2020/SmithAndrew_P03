@@ -21,13 +21,15 @@ public class Character : MonoBehaviour
     [SerializeField] AudioSource _chargeAudio = null;
     [SerializeField] AudioClip _chargeSFX = null;
 
+    [SerializeField] ParticleSystem _superParticle = null;
+
     [SerializeField] AudioSource _transformAudio = null;
     [SerializeField] AudioClip _SuperSFX = null;
 
     public GameObject artToDisable = null;
     public GameObject artToEnable = null;
 
-    public float _tJumpHeight = 4f;
+    public float _tJumpHeight = 5f;
 
     public float jumpHeight = 3f;
 
@@ -49,8 +51,6 @@ public class Character : MonoBehaviour
     public bool isAttacking;
     private bool isShooting;
     public bool isFlying;
-
-    public TransformState _transformState;
 
     public bool notTransformed;
 
@@ -77,6 +77,7 @@ public class Character : MonoBehaviour
         _anim = GetComponentInChildren<Animator>();
         //GameObject.Find("SuperChar(1)");
         //currentEnergy = _energy;
+        _superParticle.Stop();
         isTransformed = false;
         notTransformed = true;
         //_powerUp.SetMaxEnergy(maxEnergy);
@@ -127,6 +128,7 @@ public class Character : MonoBehaviour
         */
         if (_powerUp.slider.value >= 200 & notTransformed)
         {
+            _superParticle.Play();
             GameObject.Find("SuperChar(1)");
             //NewMove();
             //_powerUp.SetEnergy(currentEnergy);
@@ -309,7 +311,7 @@ public class Character : MonoBehaviour
                 else if (moveDirection != Vector3.zero && Input.GetKey(KeyCode.LeftShift))
                 {
                     _anim.SetBool("isFlying", true);
-                    gravity = 0;
+                    //gravity = 0;
                     Fly();
                     //_anim.SetBool("isTransformed", true);                   
                     Debug.Log("Flying");
@@ -351,6 +353,7 @@ public class Character : MonoBehaviour
     private void Fly()
     {
         _tMoveSpeed = _flySpeed;
+        //velocity.y = Mathf.Sqrt(_tJumpHeight * -2f * 1);
         //_anim.SetFloat("SuperSpeed", 0.5f, 0.1f, Time.deltaTime);
         //_anim.SetBool("isFlying", true);
         //_anim.SetBool("isRunning", true);
@@ -449,9 +452,9 @@ public class Character : MonoBehaviour
         _chargeParticle.Play();
     }
 
-    void NotCharging()
+    void TransformParticle()
     {
-        _chargeParticle.Stop();
+        _superParticle.Play();
     }
 
     void PlayChargeSound()
