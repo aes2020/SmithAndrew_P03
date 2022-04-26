@@ -157,7 +157,8 @@ public class Character : MonoBehaviour
 
             artToDisable.SetActive(true);
             artToEnable.SetActive(false);
-
+            _superParticle.Stop();
+            _chargeParticle.Stop();
             Move();
 
             if (Input.GetButton("Fire1") && isGrounded)
