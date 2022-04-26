@@ -75,6 +75,7 @@ public class Character : MonoBehaviour
     {
         _controller = GetComponent<CharacterController>();
         _anim = GetComponentInChildren<Animator>();
+        //GameObject.Find("SuperChar(1)");
         //currentEnergy = _energy;
         isTransformed = false;
         notTransformed = true;
@@ -86,21 +87,21 @@ public class Character : MonoBehaviour
     {
         Move();
 
-        if(Input.GetKeyDown(KeyCode.P))
+        if (Input.GetKeyDown(KeyCode.P))
         {
             //StartCoroutine(Attack());
             Kick();
             _anim.SetBool("isAttacking", true);
             Debug.Log("Attack");
         }
-
+        /*
         if (Input.GetKeyDown(KeyCode.O) && isTransformed)
         {
             Projectile();
             _anim.SetBool("isShooting", true);
             Debug.Log("Projectile Shot");
         }
-
+        */
             if (Input.GetButton("Fire1") && isGrounded)
         {
             PlayChargeSound();
@@ -126,12 +127,13 @@ public class Character : MonoBehaviour
         */
         if (_powerUp.slider.value >= 200 & notTransformed)
         {
-            NewMove();
+            GameObject.Find("SuperChar(1)");
+            //NewMove();
             //_powerUp.SetEnergy(currentEnergy);
             notTransformed = false;
             isTransformed = true;
-
-            _anim.SetBool("isTransformed", true);
+           
+            //_anim.SetBool("isTransformed", true);
 
             //_powerUp.EnergyReset(currentEnergy);
 
@@ -155,6 +157,17 @@ public class Character : MonoBehaviour
             artToEnable.SetActive(false);
 
             Move();
+
+            if (Input.GetButton("Fire1") && isGrounded)
+            {
+                PlayChargeSound();
+                ChargeParticle();
+                GainEnergy(1);
+                _powerUp.SetEnergy(currentEnergy);
+                _anim.SetBool("isCharging", true);
+                Charge();
+                //_powerUp.SetMaxEnergy(100);
+            }
             /*
             Move();
             isTransformed = false;
@@ -190,6 +203,7 @@ public class Character : MonoBehaviour
 
         if(isGrounded)
         {
+            _anim = GetComponentInChildren<Animator>();
             if (moveDirection != Vector3.zero && !Input.GetKey(KeyCode.LeftShift))
             {
                 Walk();
@@ -214,6 +228,11 @@ public class Character : MonoBehaviour
                 Jump();
                 Debug.Log("Jumped");
                 _anim.SetBool("isJumping", true);
+            }
+            else if (isTransformed == true)
+            {
+                //_anim = GetComponentInChildren<Animator>();
+                NewMove();
             }
         }
                
@@ -253,89 +272,88 @@ public class Character : MonoBehaviour
     {
         _anim.SetBool("isAttacking", true);
     }
-
+    /*
     private void Projectile()
     {
         _anim.SetBool("isShooting", true);
     }
-
+    */
     public void NewMove()
     {
-
-        isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
-
-        _anim.SetFloat("SuperSpeed", 0.5f, 0.1f, Time.deltaTime);
-        _anim.SetBool("isTransformed", true);
-
-        if (isGrounded && velocity.y < 0)
+        _anim = GetComponentInChildren<Animator>();
+        if (isTransformed)
         {
-            velocity.y = -2f;
+            isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
+
+            if (isGrounded && velocity.y < 0)
+            {
+                velocity.y = -2f;
+            }
+
+
+            float z = Input.GetAxis("Vertical");
+            float x = Input.GetAxis("Horizontal");
+
+            moveDirection = new Vector3(x, 0, z);
+
+            if (isGrounded)
+            {
+                if (moveDirection != Vector3.zero && !Input.GetKey(KeyCode.LeftShift))
+                {
+                    NewWalk();
+                    //_anim.SetBool("isTransformed", true);
+
+                    _anim.SetBool("isFlying", false);
+                    Debug.Log("Ninja Run");
+                }
+                else if (moveDirection != Vector3.zero && Input.GetKey(KeyCode.LeftShift))
+                {
+                    _anim.SetBool("isFlying", true);
+                    gravity = 0;
+                    Fly();
+                    //_anim.SetBool("isTransformed", true);                   
+                    Debug.Log("Flying");
+                }
+                else if (moveDirection == Vector3.zero)
+                {
+                    SuperIdle();
+                    //_anim.SetBool("isTransformed", true);
+                    _anim.SetBool("isFlying", false);
+                    //_anim.SetBool("isJumping", false);
+                }
+
+                moveDirection *= _tMoveSpeed;
+
+            }
+
+
+            _controller.Move(moveDirection * Time.deltaTime);
+
+            velocity.y += gravity * Time.deltaTime;
+            _controller.Move(velocity * Time.deltaTime);
         }
-
-
-        float z = Input.GetAxis("Vertical");
-        float x = Input.GetAxis("Horizontal");
-
-        moveDirection = new Vector3(x, 0, z);
-
-        if (isGrounded)
-        {
-            Debug.Log("Transform state is grounded");
-            //isFlying = true;
-            //_anim.SetBool("isFlying", true);
-            //_anim.SetFloat("Fly", 0.5f, 0.1f, Time.deltaTime);
-            //_anim.SetBool("isTransformed", true);
-
-
-            if (moveDirection != Vector3.zero && !Input.GetKey(KeyCode.LeftShift))
-            {
-                NewWalk();
-            }
-            else if (moveDirection != Vector3.zero && Input.GetKey(KeyCode.LeftShift))
-            {
-                Fly();
-            }
-            else if (moveDirection == Vector3.zero)
-            {
-                SuperIdle();
-            }
-            
-            moveDirection *= _tMoveSpeed;
-            /*
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                SuperJump();
-                Debug.Log("Super Jump");
-            }
-            */
-
-        }
-
-        _controller.Move(moveDirection * Time.deltaTime);
-
-        velocity.y += gravity * Time.deltaTime;
-        _controller.Move(velocity * Time.deltaTime);
     }
 
     private void SuperIdle()
     {
-        _anim.SetFloat("SuperSpeed", 0, 0.1f, Time.deltaTime);
-        _anim.SetBool("isFlying", false);
+        _anim.SetFloat("Speed", 0, 0.1f, Time.deltaTime);
+        //_anim.SetBool("isFlying", false);
         //_anim.SetBool("isJumping", false);
     }
 
     private void NewWalk()
     {
         _tMoveSpeed = _tWalkSpeed;
-        _anim.SetFloat("SuperSpeed", 0.5f, 0.1f, Time.deltaTime);
-        _anim.SetBool("isFlying", false);
+        _anim.SetFloat("Speed", 0.5f, 0.1f, Time.deltaTime);
+        //_anim.SetBool("isFlying", false);
     }
 
     private void Fly()
     {
-        _moveSpeed = _flySpeed;
-        _anim.SetFloat("SuperSpeed", 0.5f, 0.1f, Time.deltaTime);
-        _anim.SetBool("isFlying", true);
+        _tMoveSpeed = _flySpeed;
+        //_anim.SetFloat("SuperSpeed", 0.5f, 0.1f, Time.deltaTime);
+        //_anim.SetBool("isFlying", true);
+        //_anim.SetBool("isRunning", true);
     }
 
     /*

@@ -10,9 +10,14 @@ public class TransformState : MonoBehaviour
 
     public PowerUp _powerUp;
 
+    [SerializeField] AudioSource _transformAudio = null;
+    [SerializeField] AudioClip _SuperSFX = null;
+
     [SerializeField] private float _tMoveSpeed;
     [SerializeField] private float _tWalkSpeed;
     [SerializeField] private float _tRunSpeed;
+
+    [SerializeField] private float _flySpeed;
 
     public float _tJumpHeight = 4f;
 
@@ -73,7 +78,11 @@ public class TransformState : MonoBehaviour
 
     public void NewMove()
     {
+
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
+
+        _anim.SetFloat("SuperSpeed", 0.5f, 0.1f, Time.deltaTime);
+        _anim.SetBool("isTransformed", true);
 
         if (isGrounded && velocity.y < 0)
         {
@@ -89,6 +98,11 @@ public class TransformState : MonoBehaviour
         if (isGrounded)
         {
             Debug.Log("Transform state is grounded");
+            //isFlying = true;
+            //_anim.SetBool("isFlying", true);
+            //_anim.SetFloat("Fly", 0.5f, 0.1f, Time.deltaTime);
+            //_anim.SetBool("isTransformed", true);
+
 
             if (moveDirection != Vector3.zero && !Input.GetKey(KeyCode.LeftShift))
             {
@@ -96,7 +110,7 @@ public class TransformState : MonoBehaviour
             }
             else if (moveDirection != Vector3.zero && Input.GetKey(KeyCode.LeftShift))
             {
-                SuperRun();
+                Fly();
             }
             else if (moveDirection == Vector3.zero)
             {
@@ -104,14 +118,15 @@ public class TransformState : MonoBehaviour
             }
 
             moveDirection *= _tMoveSpeed;
-
+            /*
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 SuperJump();
                 Debug.Log("Super Jump");
             }
-        }
+            */
 
+        }
 
         _controller.Move(moveDirection * Time.deltaTime);
 
@@ -121,38 +136,28 @@ public class TransformState : MonoBehaviour
 
     private void SuperIdle()
     {
-        _anim.SetFloat("Speed", 0, 0.1f, Time.deltaTime);
-        _anim.SetBool("isRunning", false);
-        _anim.SetBool("isJumping", false);
+        _anim.SetFloat("SuperSpeed", 0, 0.1f, Time.deltaTime);
+        _anim.SetBool("isFlying", false);
+        //_anim.SetBool("isJumping", false);
     }
 
     private void NewWalk()
     {
         _tMoveSpeed = _tWalkSpeed;
-        _anim.SetFloat("Speed", 0.5f, 0.1f, Time.deltaTime);
-        _anim.SetBool("isRunning", false);
+        _anim.SetFloat("SuperSpeed", 0.5f, 0.1f, Time.deltaTime);
+        _anim.SetBool("isFlying", false);
     }
 
-    private void SuperRun()
+    private void Fly()
     {
-        _tMoveSpeed = _tRunSpeed;
-        _anim.SetBool("isRunnning", true);
+        _tMoveSpeed = _flySpeed;
+        _anim.SetFloat("SuperSpeed", 0.5f, 0.1f, Time.deltaTime);
+        _anim.SetBool("isFlying", true);
     }
 
-    private void SuperJump()
+    void PlayTransformSound()
     {
-        velocity.y = Mathf.Sqrt(_tJumpHeight * -2f * gravity);
-        _anim.SetBool("isJumping", true);
+        _transformAudio.clip = _SuperSFX;
+        _transformAudio?.Play();
     }
-
-    /*
-    private IEnumerator SuperAttack()
-    {
-        _anim.SetLayerWeight(_anim.GetLayerIndex("AttackLayer"), 1);
-        _anim.SetTrigger("Attack");
-
-        yield return new WaitForSeconds(0.9f);
-        _anim.SetLayerWeight(_anim.GetLayerIndex("AttackLayer"), 0);
-    }
-    */
 }
